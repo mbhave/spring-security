@@ -1,0 +1,29 @@
+name: AspectJ Reproducibility Build
+
+# Manual only. Builds the jars and attaches them to the run; nothing is published.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build and attach artifacts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v5
+        with:
+          distribution: liberica
+          java-version: 25
+      - uses: gradle/actions/setup-gradle@v5
+      - name: Build spring-security-aspects (no tests, no deploy)
+        run: ./gradlew :spring-security-aspects:assemble
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v5
+        with:
+          name: jars
+          path: aspects/build/libs/*.jar
+          if-no-files-found: error
+          retention-days: 7
